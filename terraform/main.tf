@@ -31,3 +31,16 @@ resource "tls_private_key" "rsa" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
+
+provisioner "file" {
+source      = "../ansible"
+destination = "/home/ec2-user"
+
+connection {
+  type        = "ssh"
+  host        = aws_instance.app_server
+  user        = "ubuntu"
+  private_key = tls_private_key.rsa.private_key_pem
+  insecure    = true
+}
+}

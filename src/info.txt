@@ -1,0 +1,18 @@
+AKIAQ5GPLDKPYOKDKNDT
+
+X//OQUxrtzK/PdklQcQwpupd7AaLMPus06sU0npK
+
+const AWS = require("aws-sdk");
+
+const s3 = new AWS.S3();
+
+(async () => {
+   await s3
+   .putObject ({
+        Body:"hello world!!!!",
+        Bucket:"fileuploadtestlf10",
+        Key:"my-file2.txt",
+        })
+        .promise(); 
+} )();
+
