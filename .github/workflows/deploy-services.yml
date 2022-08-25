@@ -6,7 +6,7 @@ jobs:
   tf_deploy:
     defaults:
       run:
-        working-directory: ../../terraform/
+        working-directory: terraform/
     name: Deploy Services
     runs-on: ubuntu-latest
     steps:
