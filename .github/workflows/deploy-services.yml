@@ -7,8 +7,8 @@ jobs:
     name: Deploy Services
     runs-on: ubuntu-latest
     steps:
-
-      - uses: actions/checkout@v2
+      - name: Checkout latest code
+        uses: actions/checkout@v2
 
       - name: Terraform Init
         uses: hashicorp/setup-terraform@v2
