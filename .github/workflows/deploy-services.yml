@@ -22,8 +22,6 @@ jobs:
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Terraform Init
         run: terraform init
@@ -33,6 +31,8 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
