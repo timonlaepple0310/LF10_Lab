@@ -24,7 +24,7 @@ resource "tls_private_key" "rsa" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "fileupload-lf10-prod"
+  bucket = "fileuploadlf10prod"
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
