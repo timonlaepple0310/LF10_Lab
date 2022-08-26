@@ -32,7 +32,7 @@ resource "aws_instance" "app_server" {
 
   provisioner "file" {
     source = "../src/index.html"
-    destination = "/home/ubuntu/"
+    destination = "/home/ubuntu/index.html"
 
     connection {
       type        = "ssh"
@@ -49,8 +49,7 @@ resource "aws_instance" "app_server" {
                 sudo apt install apache2 -y
                 echo "*** Completed Installing apache2 - starting now"
                 sudo service apache2 start
-                sudo rm -rf /var/www/*
-                sudo mv /home/ubuntu/index.html /var/www/
+                sudo mv /home/ubuntu/index.html /var/www/index.html
                 EOF
 
   tags = {
