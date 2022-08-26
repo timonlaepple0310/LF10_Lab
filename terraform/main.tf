@@ -30,18 +30,9 @@ resource "aws_instance" "app_server" {
   vpc_security_group_ids = [aws_security_group.main.id]
   associate_public_ip_address = true
 
-  user_data = <<-EOF
-                #!/bin/bash
-                echo "*** Installing apache2"
-                sudo apt update -y
-                sudo apt install apache2 -y
-                echo "*** Completed Installing apache2 - starting now"
-                sudo service apache2 start
-                EOF
-
   provisioner "file" {
     source = "../src/index.html"
-    destination = "/var/www/"
+    destination = "/home/ubuntu/"
 
     connection {
       type        = "ssh"
@@ -50,6 +41,17 @@ resource "aws_instance" "app_server" {
       host        = aws_instance.app_server.public_dns
     }
   }
+
+  user_data = <<-EOF
+                #!/bin/bash
+                echo "*** Installing apache2"
+                sudo apt update -y
+                sudo apt install apache2 -y
+                echo "*** Completed Installing apache2 - starting now"
+                sudo service apache2 start
+                sudo rm -rf /var/www/*
+                sudo mv /home/ubuntu/index.html /var/www/
+                EOF
 
   tags = {
     Name = "Test Merver"
