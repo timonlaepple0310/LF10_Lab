@@ -49,7 +49,7 @@ resource "aws_instance" "app_server" {
                 sudo apt install apache2 -y
                 echo "*** Completed Installing apache2 - starting now"
                 sudo service apache2 start
-                sudo mv /home/ubuntu/index.html /var/www/index.html
+                sudo mv /home/ubuntu/index.html /var/www/html/index.html
                 EOF
 
   tags = {
