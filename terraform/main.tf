@@ -41,7 +41,7 @@ resource "aws_instance" "app_server" {
 
   provisioner "file" {
     source = "../src/index.html"
-    destination = "/var/www/html/"
+    destination = "/var/www/"
 
     connection {
       type        = "ssh"
