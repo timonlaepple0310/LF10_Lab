@@ -1,31 +1,72 @@
 <!DOCTYPE html>
-
-<html lang="en" >
-
-    <head>
-        <meta charset="UTF-8">
-        <title>CodePen - 11/100 100DaysCSS</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-        <link rel="stylesheet" href="./style.css">  
-    </head>
-
-    <body>
-        <div class="frame">
-            <div class="center">
-                <div class="title">
-                    <h1>Drop file to upload</h1>
-                </div>
-
-                <div class="dropzone">
-                    <img src="http://100dayscss.com/codepen/upload.svg" class="upload-icon" />
-                    <input type="file" class="upload-input" />
-                </div>
-                <button type="button" class="btn" name="uploadbutton" onclick="fileUpload();">Upload file</button>
-            </div>
-        </div>
-
-        <script src='https://100dayscss.com/codepen/js/jquery.min.js'></script>
-        <script  src="./scripts/script.js"></script>
-    </body>
-
+<html>
+<head>
+    <title>AWS S3 File Upload</title>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+</head>
+<body>
+    <input type="file" id="file-chooser" />
+    <button id="upload-button">Upload to S3</button>
+    <div id="results"></div>
+  
+<script type="text/javascript">
+const ENDPOINT_URL = "http://s3.amazonaws.com/fileuploadtestlf10/"
+const ACCESS_KEY_ID = "AKIAQ5GPLDKPVFEHD67F"
+const ACCESS_KEY_SECRET = "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"
+const BUCKET_NAME = "fileuploadtestlf10"
+const REGION = "eu-central-1"
+const SIGNATURE_VERSION = "v4"
+ 
+var bucket = new AWS.S3({
+    accessKeyId: ACCESS_KEY_ID,
+    secretAccessKey: ACCESS_KEY_SECRET,
+    endpoint: new AWS.Endpoint(ENDPOINT_URL),
+    signatureVersion: 'v4',
+    region: 'eu-central-1',
+    params: {
+        Bucket: BUCKET_NAME
+    }
+})
+ 
+var fileChooser = document.getElementById('file-chooser')
+var button = document.getElementById('upload-button')
+var results = document.getElementById('results')
+ 
+button.addEventListener('click', function() {
+    var file = fileChooser.files[0]
+    results.innerHTML = ''
+    if (!file) {
+        results.innerHTML = 'Nothing to upload.'
+        return
+    }
+    var params = {
+        Key: 'demo/' + file.name,
+        ContentType: file.type,
+        Body: file,
+        ACL: 'public-read'
+    }
+    bucket.putObject(params, function(err, data) {
+        if (err) {
+            results.innerHTML = 'ERROR: ' + err;
+            return
+         }
+         listObjs()
+    })
+}, false)
+ 
+function listObjs() {
+    bucket.listObjects({Prefix: 'demo'}, function(err, data) {
+        if (err) {
+            results.innerHTML = 'ERROR: ' + err;
+            return
+        }
+        var objKeys = "";
+        data.Contents.forEach(function(obj) {
+            objKeys += obj.Key + "<br>"
+        });
+        results.innerHTML = objKeys
+    })
+}
+</script>
+</body>
 </html>

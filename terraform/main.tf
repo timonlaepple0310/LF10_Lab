@@ -26,8 +26,30 @@ resource "tls_private_key" "rsa" {
 resource "aws_instance" "app_server" {
   ami           = "ami-03f87e9ce1bec353f"
   instance_type = "t2.micro"
-  key_name = "deployer-key"
+  key_name      = "deployer-key"
   vpc_security_group_ids = [aws_security_group.main.id]
+  associate_public_ip_address = true
+
+  user_data = <<-EOF
+                #!/bin/bash
+                echo "*** Installing apache2"
+                sudo apt update -y
+                sudo apt install apache2 -y
+                echo "*** Completed Installing apache2 - starting now"
+                sudo service apache2 start
+                EOF
+
+  provisioner "file" {
+    source = "../src/index.html"
+    destination = "/var/www/html/"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = tls_private_key.rsa.private_key_pem
+      host        = self.public_ip
+    }
+  }
 
   tags = {
     Name = "Test Merver"
