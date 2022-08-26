@@ -1,6 +1,5 @@
 data "github_actions_public_key" "example_public_key" {
   repository = "LF10_Automatisierung"
-  key_id = "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"
 }
 
 resource "github_actions_secret" "example_secret" {
