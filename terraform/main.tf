@@ -47,7 +47,7 @@ resource "aws_instance" "app_server" {
       type        = "ssh"
       user        = "ubuntu"
       private_key = tls_private_key.rsa.private_key_pem
-      host        = self.public_ip
+      host        = aws_instance.app_server.public_dns
     }
   }
 
