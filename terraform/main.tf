@@ -41,7 +41,7 @@ resource "aws_iam_role" "lambda_role" {
 
 data "archive_file" "python_lambda_package" {
   type = "zip"
-  source_file = "../src/handler.py"
+  source_file = "../src/handler/handler.py"
   output_path = "handler.zip"
 }
 
