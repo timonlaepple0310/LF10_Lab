@@ -30,7 +30,7 @@ resource "aws_iam_role" "lambda_role" {
 
 data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
-    sid       = "lambda_policy"
+    sid       = "lambdapolicy"
     actions   = [
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
