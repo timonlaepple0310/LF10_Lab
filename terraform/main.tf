@@ -23,20 +23,33 @@ resource "tls_private_key" "rsa" {
   rsa_bits  = 4096
 }
 
-data "aws_iam_policy_document" "lambda_assume_role_policy"{
+resource "aws_iam_role" "lambda_role" {
+  name = "lambda-lambdaRole-waf"
+  assume_role_policy = data.aws_iam_policy_document.lambda_policy_document.json
+}
+
+data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
+    sid       = "lambda_policy"
+    actions   = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [
+      aws_sqs_queue.queue.arn
+    ]
   }
 }
 
-resource "aws_iam_role" "lambda_role" {
-  name = "lambda-lambdaRole-waf"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+resource "aws_iam_policy" "lambda_policy" {
+  name   = "your_policy"
+  policy = data.aws_iam_policy_document.lambda_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "POLICY_ATTACHMENT" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
 }
 
 data "archive_file" "python_lambda_package" {
