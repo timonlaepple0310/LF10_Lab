@@ -30,16 +30,21 @@ resource "aws_iam_role" "lambda_role" {
 
 data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
+    sid       = "AllowSQSPermissions"
+    effect    = "Allow"
+    resources = ["arn:aws:sqs:*"]
+
+    actions = [
+      "sqs:ChangeMessageVisibility",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:ReceiveMessage",
+    ]
   }
 }
 
 resource "aws_iam_policy" "lambda_policy" {
-  name   = "your_policy"
+  name   = "lambda_policy"
   policy = data.aws_iam_policy_document.lambda_policy_document.json
 }
 
