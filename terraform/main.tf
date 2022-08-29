@@ -23,6 +23,53 @@ resource "tls_private_key" "rsa" {
   rsa_bits  = 4096
 }
 
+data "aws_iam_policy_document" "lambda_assume_role_policy"{
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "lambda_role" {
+  name = "lambda-lambdaRole-waf"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+}
+
+data "archive_file" "python_lambda_package" {
+  type = "zip"
+  source_file = "../src/handler.py"
+  output_path = "handler.zip"
+}
+
+resource "aws_lambda_function" "lambda" {
+  function_name = "write-sqs-data"
+  filename      = "handler.zip"
+  source_code_hash = data.archive_file.python_lambda_package.output_base64sha256
+  role          = aws_iam_role.lambda_role.arn
+  runtime       = "python3.6"
+  handler       = "handler.lambda_handler"
+  timeout       = 10
+}
+
+resource "aws_lambda_event_source_mapping" "event_source_mapping" {
+  event_source_arn = aws_sqs_queue.queue.arn
+  enabled          = true
+  function_name    = aws_lambda_function.lambda.arn
+  batch_size       = 1
+}
+
+resource "aws_sqs_queue" "queue" {
+  name                      = "lf10queue"
+  delay_seconds             = 90
+  max_message_size          = 2048
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 10
+}
+
 resource "aws_s3_bucket" "bucket" {
   bucket = "fileuploadprodlf10"
 }
