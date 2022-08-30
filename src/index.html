@@ -40,11 +40,44 @@ button.addEventListener('click', function() {
         return
     }
     var params = {
-        Key: 'demo/' + file.name,
-        ContentType: file.type,
-        Body: file,
-        ACL: 'public-read'
+      Key: 'demo/' + file.name,
+      ContentType: file.type,
+      Body: file,
+      ACL: 'public-read',
     }
+
+    var sqs = new AWS.SQS({apiVersion: '2012-11-05', accessKeyId:'AKIAQ5GPLDKPVFEHD67F', secretAccessKey:'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',region: 'eu-central-1'});
+    var date = new Date();
+
+    var sqsParams = {
+      // Remove DelaySeconds parameter and value for FIFO queues
+      DelaySeconds: 10,
+      MessageAttributes: {
+        "Title": {
+          DataType: "String",
+          StringValue: "Test String"
+        },
+        "Author": {
+          DataType: "String",
+          StringValue: "Paul, Paul, Timon - AWS"
+        },
+        "WeeksOn": {
+          DataType: "Number",
+          StringValue: "69"
+        }
+      },
+      MessageBody: String(date),
+      QueueUrl: "https://sqs.eu-central-1.amazonaws.com/062711863967/lf10queue"
+    };
+
+sqs.sendMessage(sqsParams, function(err, data) {
+  if (err) {
+    console.log("Error", err);
+  } else {
+    console.log("Success", data.MessageId);
+  }
+})
+
     bucket.putObject(params, function(err, data) {
         if (err) {
             results.innerHTML = 'ERROR: ' + err;
