@@ -61,6 +61,13 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = ["arn:aws:lambda:eu-central-1:*:function:*"]
     actions   = ["lambda:InvokeFunction"]
   }
+
+  statement {
+    sid       = "AllObjectActions"
+    effect    = "Allow"
+    actions = ["s3:*Object"]
+    resources = ["arn:aws:s3:::fileuploadtestlf10/*"]
+  }
 }
 
 resource "aws_iam_policy" "lambda_policy" {
