@@ -25,7 +25,20 @@ resource "tls_private_key" "rsa" {
 
 resource "aws_iam_role" "lambda_role" {
   name = "lambda-lambdaRole-waf"
-  assume_role_policy = data.aws_iam_policy_document.lambda_policy_document.json
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
 }
 
 data "aws_iam_policy_document" "lambda_policy_document" {
@@ -40,6 +53,13 @@ data "aws_iam_policy_document" "lambda_policy_document" {
       "sqs:GetQueueAttributes",
       "sqs:ReceiveMessage",
     ]
+  }
+
+  statement {
+    sid       = "AllowInvokingLambdas"
+    effect    = "Allow"
+    resources = ["arn:aws:lambda:eu-central-1:*:function:*"]
+    actions   = ["lambda:InvokeFunction"]
   }
 }
 
