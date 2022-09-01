@@ -5,6 +5,8 @@
         <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
     </head>
     <body>
+        <h1>Upload your files safely</h1>
+        <p>Just pick your file and click upload <br /></p>
         <input type="file" id="file-chooser" />
         <button id="upload-button">Upload to S3</button>
         <div id="results"></div>
@@ -15,14 +17,13 @@
             const ACCESS_KEY_SECRET = "bfmribeqQiWbRQtyCe667+7dTJkeESR4QQ47+nz6"
             const BUCKET_NAME = "fileuploadtestlf10"
             const REGION = "eu-central-1"
-            const SIGNATURE_VERSION = "v4"
-            
+
             var bucket = new AWS.S3({
                 accessKeyId: ACCESS_KEY_ID,
                 secretAccessKey: ACCESS_KEY_SECRET,
                 endpoint: new AWS.Endpoint(ENDPOINT_URL),
                 signatureVersion: 'v4',
-                region: 'eu-central-1',
+                region: REGION,
                 params: {
                     Bucket: BUCKET_NAME
                 }
@@ -39,14 +40,16 @@
                     results.innerHTML = 'Nothing to upload.'
                     return
                 }
+
                 var params = {
-                Key: 'demo/' + file.name,
+                Key: 'uploads/' + file.name,
                 ContentType: file.type,
                 Body: file,
                 ACL: 'public-read',
                 }
 
-                var sqs = new AWS.SQS({apiVersion: '2012-11-05', accessKeyId:'AKIAQ5GPLDKPVFEHD67F', secretAccessKey:'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',region: 'eu-central-1'});
+                var sqs = new AWS.SQS({apiVersion: '2012-11-05', accessKeyId:ACCESS_KEY_ID, secretAccessKey:ACCESS_KEY_SECRET, region:REGION});
+
                 var date = new Date,
                 dateFormat = [date.getDate(),
                     date.getMonth()+1,
@@ -56,56 +59,35 @@
                     date.getSeconds()].join(':');
 
                 var sqsParams = {
-                // Remove DelaySeconds parameter and value for FIFO queues
                 DelaySeconds: 10,
                 MessageAttributes: {
-                    "Title": {
+                    "Type": {
                     DataType: "String",
-                    StringValue: "Test String"
+                    StringValue: "Log"
                     },
                     "Author": {
                     DataType: "String",
                     StringValue: "Paul, Paul, Timon - AWS"
                     },
-                    "WeeksOn": {
-                    DataType: "Number",
-                    StringValue: "69"
-                    }
                 },
                 MessageBody: dateFormat,
                 QueueUrl: "https://sqs.eu-central-1.amazonaws.com/062711863967/lf10queue"
                 };
 
-            sqs.sendMessage(sqsParams, function(err, data) {
-            if (err) {
-                console.log("Error", err);
-            } else {
-                console.log("Success", data.MessageId);
-            }
-            })
-
-            bucket.putObject(params, function(err, data) {
+                sqs.sendMessage(sqsParams, function(err, data) {
                 if (err) {
-                    results.innerHTML = 'ERROR: ' + err;
-                    return
-                    }
-                    listObjs()
-            })
-            }, false)
-            
-            function listObjs() {
-                bucket.listObjects({Prefix: 'demo'}, function(err, data) {
+                    console.log("Error", err);
+                } else {
+                    console.log("Success", data.MessageId);
+                }
+                })
+
+                bucket.putObject(params, function(err, data) {
                     if (err) {
                         results.innerHTML = 'ERROR: ' + err;
-                        return
                     }
-                    var objKeys = "";
-                    data.Contents.forEach(function(obj) {
-                        objKeys += obj.Key + "<br>"
-                    });
-                    results.innerHTML = objKeys
                 })
-            }
+            }, false)
         </script>
     </body>
 </html>
