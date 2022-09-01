@@ -9,7 +9,8 @@
         <p>Just pick your file and click upload <br /></p>
         <input type="file" id="file-chooser" />
         <button id="upload-button">Upload to S3</button>
-        <div id="results"></div>
+        <br />
+        <h3 id="results"></h3>
     
         <script type="text/javascript">
             const ENDPOINT_URL = "http://s3.amazonaws.com/fileuploadtestlf10/"
@@ -85,6 +86,9 @@
                 bucket.putObject(params, function(err, data) {
                     if (err) {
                         results.innerHTML = 'ERROR: ' + err;
+                    } else {
+                        results.innerHTML = 'Success!';
+
                     }
                 })
             }, false)
