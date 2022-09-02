@@ -117,7 +117,20 @@ resource "aws_s3_bucket" "bucket" {
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
   bucket = aws_s3_bucket.bucket.id
-  acl    = "public-read-write"
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucket_ownership" {
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_access_point" "bucket_access_point" {
+  bucket = aws_s3_bucket.bucket.id
+  name   = "upload"
 }
 
 resource "aws_s3_bucket_cors_configuration" "bucket-configuration" {
@@ -125,10 +138,9 @@ resource "aws_s3_bucket_cors_configuration" "bucket-configuration" {
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["PUT", "POST", "GET", "DELETE", "HEAD"]
+    allowed_methods = ["HEAD", "GET", "PUT", "POST", "DELETE"]
     allowed_origins = ["*"]
     expose_headers  = ["ETag"]
-    max_age_seconds = 3000
   }
 }
 
