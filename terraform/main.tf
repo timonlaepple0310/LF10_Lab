@@ -10,11 +10,11 @@ terraform {
 }
 
 provider "aws" {
-  region  = "eu-central-1"
+  region  = "YOUR_REGION_HERE"
 }
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "deployer-key"
+  key_name   = "YOUR_KEY_HERE"
   public_key = tls_private_key.rsa.public_key_openssh
 }
 
@@ -24,7 +24,7 @@ resource "tls_private_key" "rsa" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "lambda-lambdaRole-waf"
+  name = "YOUR_IAM_ROLE_HERE"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
     sid       = "AllowInvokingLambdas"
     effect    = "Allow"
-    resources = ["arn:aws:lambda:eu-central-1:*:function:*"]
+    resources = ["arn:aws:lambda:YOUR_REGION_HERE*:function:*"]
     actions   = ["lambda:InvokeFunction"]
   }
 
@@ -66,12 +66,12 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     sid       = "AllObjectActions"
     effect    = "Allow"
     actions = ["s3:*Object"]
-    resources = ["arn:aws:s3:::fileuploadtestlf10/*"]
+    resources = ["arn:aws:s3:::YOUR_BUCKET_HERE/*"]
   }
 }
 
 resource "aws_iam_policy" "lambda_policy" {
-  name   = "lambda_policy"
+  name   = "YOUR_POLICY_NAME_HERE"
   policy = data.aws_iam_policy_document.lambda_policy_document.json
 }
 
@@ -87,7 +87,7 @@ data "archive_file" "python_lambda_package" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name = "write-sqs-data"
+  function_name = "YOUR_FUNCTION_NAME"
   filename      = "handler.zip"
   source_code_hash = data.archive_file.python_lambda_package.output_base64sha256
   role          = aws_iam_role.lambda_role.arn
@@ -104,7 +104,7 @@ resource "aws_lambda_event_source_mapping" "event_source_mapping" {
 }
 
 resource "aws_sqs_queue" "queue" {
-  name                      = "lf10queue"
+  name                      = "YOUR_QUEUE_NAME_HERE"
   delay_seconds             = 90
   max_message_size          = 2048
   message_retention_seconds = 86400
@@ -112,7 +112,7 @@ resource "aws_sqs_queue" "queue" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "fileuploadprodlf10"
+  bucket = "YOUR_BUCKET_HERE"
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
@@ -135,7 +135,7 @@ resource "aws_s3_bucket_cors_configuration" "bucket-configuration" {
 resource "aws_instance" "app_server" {
   ami           = "ami-03f87e9ce1bec353f"
   instance_type = "t2.micro"
-  key_name      = "deployer-key"
+  key_name      = "YOUR_KEY_NAME_HERE"
   vpc_security_group_ids = [aws_security_group.main.id]
   associate_public_ip_address = true
 
